@@ -323,7 +323,331 @@ function testDefineFirstArg() {
   );
 }
 
-// Run all tests
+/*
+Challenge 11: Function Output Timestamping
+Create a function 'dateStamp' that accepts a function and returns a new function.
+The returned function should work exactly like the input function,
+but its output should be wrapped in an object with two keys:
+- date: contains a timestamp of when the function was called
+- output: contains the original function's output
+*/
+function dateStamp(func) {
+  return (...args) => {
+    return {
+      date: Date.now(),
+      output: func(...args),
+    };
+  };
+}
+
+// Tests for Challenge 11
+function testDateStamp() {
+  const stamped = dateStamp((n) => n * 2);
+  const result = stamped(4);
+
+  checkTest(
+    "returns object with date and output",
+    typeof result === "object" && "date" in result && "output" in result,
+    true,
+  );
+
+  checkTest("output contains correct calculation", result.output, 8);
+
+  checkTest(
+    "date is valid timestamp",
+    !isNaN(new Date(result.date).getTime()),
+    true,
+  );
+}
+
+/*
+Challenge 12: String Censor
+Create a function 'censor' that manages a list of string pairs for censoring.
+Returns a function that either:
+1. Accepts two strings to add a censorship pair
+2. Accepts one string and returns it with all stored censorship applied
+*/
+function censor() {
+  const memo = {};
+  return (...args) => {
+    if (args.length == 2) {
+      memo[args[0]] = args[1];
+    } else if (args.length == 1) {
+      const string = args[0];
+      const wordsToReplce = Object.keys(memo);
+
+      return wordsToReplce.reduce((res, word) => {
+        return res.replaceAll(word, memo[word]);
+      }, string);
+    } else return;
+  };
+}
+
+// Tests for Challenge 12
+function testCensor() {
+  const changeScene = censor();
+  changeScene("dogs", "cats");
+  changeScene("quick", "slow");
+
+  checkTest(
+    "applies multiple censors",
+    changeScene("The quick, brown fox jumps over the lazy dogs."),
+    "The slow, brown fox jumps over the lazy cats.",
+  );
+
+  changeScene("brown", "blue");
+  checkTest(
+    "can add more censors",
+    changeScene("The quick, brown fox jumps over the lazy dogs."),
+    "The slow, blue fox jumps over the lazy cats.",
+  );
+}
+
+/*
+Challenge 13: Private Counter Object
+Create a function 'createSecretHolder' that accepts a secret value.
+Returns an object with only two methods:
+1. getSecret() - returns the secret value
+2. setSecret() - sets a new secret value
+The secret value should not be accessible except through these methods.
+*/
+function createSecretHolder(secret) {
+  return {
+    getSecret: () => {
+      return secret;
+    },
+    setSecret: (newSecret) => {
+      secret = newSecret;
+    },
+  };
+}
+
+// Tests for Challenge 13
+function testSecretHolder() {
+  const obj = createSecretHolder(5);
+
+  checkTest("initial secret value", obj.getSecret(), 5);
+
+  obj.setSecret(2);
+  checkTest("secret value after setting", obj.getSecret(), 2);
+
+  checkTest("secret is private", obj.secret === undefined, true);
+}
+
+/*
+Challenge 14: Call Counter
+Create a function 'callTimes' that returns a new function.
+The returned function should return a number representing
+how many times it has been called.
+*/
+function callTimes() {
+  let count = 0;
+  return () => ++count;
+}
+
+// Tests for Challenge 14
+function testCallTimes() {
+  const func1 = callTimes();
+  const func2 = callTimes();
+
+  checkTest(
+    "first function counts correctly",
+    [func1(), func1(), func1()].join(","),
+    "1,2,3",
+  );
+
+  checkTest(
+    "second function has separate count",
+    [func2(), func2()].join(","),
+    "1,2",
+  );
+}
+
+/*
+Challenge 15: Roulette Game
+Create a function 'roulette' that accepts a number n.
+Returns a function that when called:
+1. Returns 'spin' for first n-1 calls
+2. Returns 'win' on the nth call
+3. Returns 'game over' for all subsequent calls
+*/
+function roulette(n) {
+  let calls = 0;
+  return () => {
+    calls++;
+    if (n > calls) {
+      return "spin";
+    } else if (n === calls) {
+      return "win";
+    }
+
+    return "game over";
+  };
+}
+
+// Tests for Challenge 15
+function testRoulette() {
+  const play = roulette(3);
+
+  checkTest("initial spins", [play(), play()].join(","), "spin,spin");
+
+  checkTest("winning spin", play(), "win");
+
+  checkTest(
+    "game over after win",
+    [play(), play()].join(","),
+    "game over,game over",
+  );
+}
+
+/*
+Challenge 16: Running Average Calculator
+Create a function 'average' that returns a function.
+The returned function should:
+1. Accept a number or no arguments
+2. Return the current average of all numbers passed in
+3. Return 0 if no numbers have been passed in
+*/
+function average() {
+  let count = 0;
+  let sum = 0;
+  function getAverage() {
+    return sum / count;
+  }
+
+  return (num) => {
+    if (num === undefined) {
+      return 0;
+    } else if (typeof num !== "number" || !Number.isFinite(num)) {
+      return "Not a number";
+    }
+    count++;
+    sum += num;
+    return getAverage();
+  };
+}
+
+// Tests for Challenge 16
+function testAverage() {
+  const avg = average();
+
+  checkTest("initial average is 0", avg(), 0);
+
+  checkTest("single number average", avg(4), 4);
+
+  checkTest("multiple numbers average", [avg(8), avg()].join(","), "6,0");
+}
+
+/*
+Challenge 17: Function Behavior Tester
+Create a function 'makeFuncTester' that accepts an array of test cases.
+Each test case is a two-element array: [input, expected output].
+Returns a function that tests if a callback function behaves correctly
+for all test cases.
+*/
+function makeFuncTester(arrOfTests) {
+  let i = 0;
+  return (cb) => {
+    return cb(arrOfTests[i][0]) === arrOfTests[i][1];
+  };
+}
+
+// Tests for Challenge 17
+function testMakeFuncTester() {
+  const tests = [
+    ["hello", "HELLO"],
+    ["goodbye", "GOODBYE"],
+  ];
+  const tester = makeFuncTester(tests);
+
+  checkTest(
+    "correctly identifies matching function",
+    tester((str) => str.toUpperCase()),
+    true,
+  );
+
+  checkTest(
+    "correctly identifies non-matching function",
+    tester((str) => str + "!"),
+    false,
+  );
+}
+
+/*
+Challenge 18: Command History
+Create a function 'makeHistory' that accepts a number (limit).
+Returns a function that stores command history up to the limit.
+The returned function should:
+1. Accept a string command or 'undo'
+2. Return '[command] done' or '[command] undone'
+3. Return 'nothing to undo' if history is empty
+*/
+function makeHistory(limit) {
+  const history = [];
+  return (input) => {
+    if (input === "undo") {
+      if (history.len === 0) return "nothing to undo";
+
+      return `${history.pop()} undone`;
+    }
+
+    history.push(input);
+    return `${input} done`;
+  };
+}
+
+// Tests for Challenge 18
+function testMakeHistory() {
+  const history = makeHistory(2);
+
+  checkTest(
+    "executes commands",
+    [history("jump"), history("walk")].join(","),
+    "jump done,walk done",
+  );
+
+  checkTest("handles undo", history("undo"), "walk undone");
+
+  checkTest(
+    "respects history limit",
+    [
+      history("look"),
+      history("run"),
+      history("undo"),
+      history("undo"),
+      history("undo"),
+    ].join(","),
+    "look done,run done,run undone,look undone,nothing to undo",
+  );
+}
+
+/*
+Challenge 19: Blackjack Card Game
+Create a function 'blackjack' that accepts an array of numbers (1-11).
+Returns a dealer function that accepts two numbers as an initial hand.
+The dealer function returns a player function that:
+1. Returns initial hand sum on first call
+2. Returns updated hand sum or 'bust' on subsequent calls
+3. Returns 'you are done!' after busting
+*/
+function blackjack(array) {}
+
+// Tests for Challenge 19
+function testBlackjack() {
+  const deal = blackjack([2, 6, 1, 7, 11, 4, 6, 3, 9, 8]);
+  const play = deal(4, 5);
+
+  checkTest("initial hand", play(), 9);
+
+  checkTest("hit outcomes", [play(), play()].join(","), "11,18");
+
+  const play2 = deal(10, 9);
+  checkTest("detects bust", [play2(), play2()].join(","), "19,bust");
+
+  checkTest("game over after bust", play2(), "you are done!");
+}
+
+// Complete runAllTests function with all challenges
 function runAllTests() {
   console.log("Running Challenge 1 Tests:");
   testCreateFunction();
@@ -355,6 +679,33 @@ function runAllTests() {
 
   console.log("\nRunning Challenge 10 Tests:");
   testDefineFirstArg();
+
+  console.log("\nRunning Challenge 11 Tests:");
+  testDateStamp();
+
+  console.log("\nRunning Challenge 12 Tests:");
+  testCensor();
+
+  console.log("\nRunning Challenge 13 Tests:");
+  testSecretHolder();
+
+  console.log("\nRunning Challenge 14 Tests:");
+  testCallTimes();
+
+  console.log("\nRunning Challenge 15 Tests:");
+  testRoulette();
+
+  console.log("\nRunning Challenge 16 Tests:");
+  testAverage();
+
+  console.log("\nRunning Challenge 17 Tests:");
+  testMakeFuncTester();
+
+  console.log("\nRunning Challenge 18 Tests:");
+  testMakeHistory();
+
+  // console.log('\nRunning Challenge 19 Tests:');
+  // testBlackjack();
 }
 
 // Uncomment to run all tests
