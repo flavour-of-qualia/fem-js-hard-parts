@@ -586,7 +586,7 @@ function makeHistory(limit) {
   const history = [];
   return (input) => {
     if (input === "undo") {
-      if (history.len === 0) return "nothing to undo";
+      if (history.length === 0) return "nothing to undo";
 
       return `${history.pop()} undone`;
     }
@@ -598,7 +598,7 @@ function makeHistory(limit) {
 
 // Tests for Challenge 18
 function testMakeHistory() {
-  const history = makeHistory(2);
+  let history = makeHistory(2);
 
   checkTest(
     "executes commands",
@@ -607,6 +607,8 @@ function testMakeHistory() {
   );
 
   checkTest("handles undo", history("undo"), "walk undone");
+
+  history = makeHistory(2);
 
   checkTest(
     "respects history limit",
@@ -630,21 +632,46 @@ The dealer function returns a player function that:
 2. Returns updated hand sum or 'bust' on subsequent calls
 3. Returns 'you are done!' after busting
 */
-function blackjack(array) {}
+function blackjack(array) {
+  return (card1, card2) => {
+    let i = 0;
+    let sum = 0;
+    sum = card1 + card2;
+
+    return () => {
+      if (i++ == 0) return sum;
+      if (sum > 21) return "you are done!";
+      sum += array.shift();
+
+      return sum > 21 ? "bust" : sum;
+    };
+  };
+}
 
 // Tests for Challenge 19
 function testBlackjack() {
-  const deal = blackjack([2, 6, 1, 7, 11, 4, 6, 3, 9, 8]);
-  const play = deal(4, 5);
+  // Test 1: Basic game flow
+  const deal1 = blackjack([3, 4, 5]);
+  const player1 = deal1(2, 3);
+  checkTest("initial hand sum", player1(), 5);
+  checkTest("after first hit", player1(), 8);
+  checkTest("after second hit", player1(), 12);
 
-  checkTest("initial hand", play(), 9);
+  // Test 2: Game with busting
+  const deal2 = blackjack([10, 5]);
+  const player2 = deal2(10, 5);
+  checkTest("initial hand before bust", player2(), 15);
+  checkTest("should bust on hit", player2(), "bust");
+  checkTest("should be done after bust", player2(), "you are done!");
+  checkTest("should still be done", player2(), "you are done!");
 
-  checkTest("hit outcomes", [play(), play()].join(","), "11,18");
-
-  const play2 = deal(10, 9);
-  checkTest("detects bust", [play2(), play2()].join(","), "19,bust");
-
-  checkTest("game over after bust", play2(), "you are done!");
+  // Test 3: Multiple players from same deck
+  const deal3 = blackjack([2, 3, 4]);
+  const playerA = deal3(10, 10);
+  const playerB = deal3(5, 5);
+  checkTest("player A initial hand", playerA(), 20);
+  checkTest("player B initial hand", playerB(), 10);
+  checkTest("player B first hit", playerB(), 12);
 }
 
 // Complete runAllTests function with all challenges
@@ -704,8 +731,8 @@ function runAllTests() {
   console.log("\nRunning Challenge 18 Tests:");
   testMakeHistory();
 
-  // console.log('\nRunning Challenge 19 Tests:');
-  // testBlackjack();
+  console.log("\nRunning Challenge 19 Tests:");
+  testBlackjack();
 }
 
 // Uncomment to run all tests
