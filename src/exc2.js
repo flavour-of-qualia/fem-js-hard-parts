@@ -674,6 +674,168 @@ function testBlackjack() {
   checkTest("player B first hit", playerB(), 12);
 }
 
+/*
+Challenge 20: Function Input Modification
+Create a function 'pipe' that accepts an array of functions as an input.
+It should return a new function that runs the input through each function in sequence,
+using the output of each function as the input to the next function.
+*/
+function pipe(functionsArray) {}
+
+// Tests for Challenge 20
+function testPipe() {
+  const capitalize = (str) => str.toUpperCase();
+  const addExclamation = (str) => str + "!";
+  const repeat = (str) => str + " " + str;
+
+  const pipeline = pipe([capitalize, addExclamation, repeat]);
+
+  checkTest("pipes multiple functions", pipeline("hello"), "HELLO! HELLO!");
+
+  const pipeline2 = pipe([addExclamation, repeat]);
+  checkTest(
+    "works with different function combinations",
+    pipeline2("hey"),
+    "hey! hey!",
+  );
+}
+
+/*
+Challenge 21: Memoization with Timeout
+Create a function 'memoizeWithTimeout' that accepts:
+1. A function to memoize
+2. A time in milliseconds
+Returns a memoized version of the function that clears its cache after the specified time.
+*/
+function memoizeWithTimeout(func, timeout) {}
+
+// Tests for Challenge 21
+function testMemoizeWithTimeout() {
+  let callCount = 0;
+  const expensive = (n) => {
+    callCount++;
+    return n * 2;
+  };
+
+  const memoized = memoizeWithTimeout(expensive, 1000);
+
+  checkTest("initial function call works", memoized(5), 10);
+
+  checkTest("uses cached value", [memoized(5), callCount].join(","), "10,1");
+
+  // Wait for cache to clear
+  setTimeout(() => {
+    checkTest(
+      "cache cleared after timeout",
+      [memoized(5), callCount].join(","),
+      "10,2",
+    );
+  }, 1500);
+}
+
+/*
+Challenge 22: Debounce Function
+Create a function 'debounce' that accepts:
+1. A function to debounce
+2. A delay in milliseconds
+Returns a function that will only execute after the specified delay
+has passed since its last invocation.
+*/
+function debounce(func, delay) {}
+
+// Tests for Challenge 22
+function testDebounce() {
+  let counter = 0;
+  const increment = () => counter++;
+  const debouncedIncrement = debounce(increment, 100);
+
+  debouncedIncrement();
+  debouncedIncrement();
+  debouncedIncrement();
+
+  checkTest("function not called immediately", counter, 0);
+
+  setTimeout(() => {
+    checkTest("function called once after delay", counter, 1);
+  }, 200);
+}
+
+/*
+Challenge 23: Throttle Function
+Create a function 'throttle' that accepts:
+1. A function to throttle
+2. A time interval in milliseconds
+Returns a function that can only be executed once within the specified interval.
+Additional calls within the interval are ignored.
+*/
+function throttle(func, interval) {}
+
+// Tests for Challenge 23
+function testThrottle() {
+  let counter = 0;
+  const increment = () => counter++;
+  const throttledIncrement = throttle(increment, 100);
+
+  throttledIncrement();
+  throttledIncrement();
+  throttledIncrement();
+
+  checkTest("first call executes immediately", counter, 1);
+
+  setTimeout(() => {
+    throttledIncrement();
+    checkTest("allows execution after interval", counter, 2);
+  }, 150);
+}
+
+/*
+Challenge 24: Function Currying
+Create a function 'curry' that accepts a function and returns a curried version
+of that function. The curried function should accept arguments one at a time
+until it has enough arguments to execute the original function.
+*/
+function curry(func) {}
+
+// Tests for Challenge 24
+function testCurry() {
+  const add3 = (a, b, c) => a + b + c;
+  const curriedAdd = curry(add3);
+
+  checkTest("curried function works", curriedAdd(1)(2)(3), 6);
+
+  const addOne = curriedAdd(1);
+  const addOneTwo = addOne(2);
+
+  checkTest(
+    "partial application works",
+    [addOne(2)(3), addOneTwo(3)].join(","),
+    "6,6",
+  );
+}
+
+/*
+Challenge 25: Middleware Chain
+Create a function 'applyMiddleware' that accepts an array of middleware functions
+and returns a function that executes them in sequence, where each middleware
+can modify or halt the execution chain.
+*/
+function applyMiddleware(middlewares) {}
+
+// Tests for Challenge 25
+function testApplyMiddleware() {
+  const addExclamation = (next) => (str) => next(str + "!");
+  const addQuestion = (next) => (str) => next(str + "?");
+  const addSpace = (next) => (str) => next(str + " ");
+
+  const chain = applyMiddleware([addExclamation, addQuestion, addSpace]);
+
+  checkTest("applies middleware chain", chain("hello"), "hello!? ");
+
+  const reverseChain = applyMiddleware([addSpace, addQuestion, addExclamation]);
+
+  checkTest("order matters in middleware", reverseChain("hello"), "hello !?!");
+}
+
 // Complete runAllTests function with all challenges
 function runAllTests() {
   console.log("Running Challenge 1 Tests:");
@@ -733,7 +895,43 @@ function runAllTests() {
 
   console.log("\nRunning Challenge 19 Tests:");
   testBlackjack();
+
+  // console.log('\nRunning Challenge 20 Tests:');
+  // testPipe();
+
+  // console.log('\nRunning Challenge 21 Tests:');
+  // testMemoizeWithTimeout();
+
+  // console.log('\nRunning Challenge 22 Tests:');
+  // testDebounce();
+
+  // console.log('\nRunning Challenge 23 Tests:');
+  // testThrottle();
+
+  // console.log('\nRunning Challenge 24 Tests:');
+  // testCurry();
+
+  // console.log('\nRunning Challenge 25 Tests:');
+  // testApplyMiddleware();
+}
+
+// Helper functions for timing-based tests
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function runTimingTests() {
+  console.log("Running timing-based tests...");
+  await wait(0);
+  testDebounce();
+  await wait(300);
+  testThrottle();
+  await wait(300);
+  testMemoizeWithTimeout();
+  console.log("Timing tests complete!");
 }
 
 // Uncomment to run all tests
 runAllTests();
+
+// runTimingTests();
