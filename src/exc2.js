@@ -680,7 +680,13 @@ Create a function 'pipe' that accepts an array of functions as an input.
 It should return a new function that runs the input through each function in sequence,
 using the output of each function as the input to the next function.
 */
-function pipe(functionsArray) {}
+function pipe(functionsArray) {
+  return (input) => {
+    return functionsArray.reduce((acc, func) => {
+      return (acc = func(acc));
+    }, input);
+  };
+}
 
 // Tests for Challenge 20
 function testPipe() {
@@ -707,7 +713,19 @@ Create a function 'memoizeWithTimeout' that accepts:
 2. A time in milliseconds
 Returns a memoized version of the function that clears its cache after the specified time.
 */
-function memoizeWithTimeout(func, timeout) {}
+function memoizeWithTimeout(func, timeout) {
+  let cache = {};
+  return (input) => {
+    if (cache[input]) return cache[input];
+
+    cache[input] = func(input);
+    setTimeout(() => {
+      cache[input] = undefined;
+    }, timeout);
+
+    return cache[input];
+  };
+}
 
 // Tests for Challenge 21
 function testMemoizeWithTimeout() {
@@ -741,7 +759,17 @@ Create a function 'debounce' that accepts:
 Returns a function that will only execute after the specified delay
 has passed since its last invocation.
 */
-function debounce(func, delay) {}
+function debounce(func, delay) {
+  let timer;
+  return (...args) => {
+    if (timer) {
+      clearTimeout(timer);
+    }
+    timer = setTimeout(() => {
+      func(...args);
+    }, delay);
+  };
+}
 
 // Tests for Challenge 22
 function testDebounce() {
@@ -768,23 +796,50 @@ Create a function 'throttle' that accepts:
 Returns a function that can only be executed once within the specified interval.
 Additional calls within the interval are ignored.
 */
-function throttle(func, interval) {}
+function throttle(func, interval) {
+  let timer = null;
+  let lastCall = null;
+
+  return (...args) => {
+    if (timer) {
+      lastCall = args;
+      return;
+    }
+    func(...args);
+    timer = setTimeout(() => {
+      if (lastCall !== null) {
+        func(...lastCall);
+        lastCall = null;
+      }
+      timer = null;
+    }, interval);
+  };
+}
 
 // Tests for Challenge 23
 function testThrottle() {
-  let counter = 0;
-  const increment = () => counter++;
-  const throttledIncrement = throttle(increment, 100);
+  let lastValue = null;
+  const updateValue = (val) => {
+    lastValue = val;
+  };
+  const throttledUpdate = throttle(updateValue, 100);
 
-  throttledIncrement();
-  throttledIncrement();
-  throttledIncrement();
+  // Test immediate execution
+  throttledUpdate("A");
+  checkTest("first call executes immediately", lastValue, "A");
 
-  checkTest("first call executes immediately", counter, 1);
+  // Test throttling and storing last call
+  throttledUpdate("B");
+  throttledUpdate("C");
+  checkTest("ignores intermediate calls", lastValue, "A");
 
+  // Test execution of last ignored call
   setTimeout(() => {
-    throttledIncrement();
-    checkTest("allows execution after interval", counter, 2);
+    checkTest("executes last ignored call after interval", lastValue, "C");
+
+    // Test new call after interval
+    throttledUpdate("D");
+    checkTest("allows new execution after interval", lastValue, "D");
   }, 150);
 }
 
@@ -896,17 +951,17 @@ function runAllTests() {
   console.log("\nRunning Challenge 19 Tests:");
   testBlackjack();
 
-  // console.log('\nRunning Challenge 20 Tests:');
-  // testPipe();
+  console.log("\nRunning Challenge 20 Tests:");
+  testPipe();
 
-  // console.log('\nRunning Challenge 21 Tests:');
-  // testMemoizeWithTimeout();
+  console.log("\nRunning Challenge 21 Tests:");
+  testMemoizeWithTimeout();
 
-  // console.log('\nRunning Challenge 22 Tests:');
-  // testDebounce();
+  console.log("\nRunning Challenge 22 Tests:");
+  testDebounce();
 
-  // console.log('\nRunning Challenge 23 Tests:');
-  // testThrottle();
+  console.log("\nRunning Challenge 23 Tests:");
+  testThrottle();
 
   // console.log('\nRunning Challenge 24 Tests:');
   // testCurry();
