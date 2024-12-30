@@ -849,7 +849,15 @@ Create a function 'curry' that accepts a function and returns a curried version
 of that function. The curried function should accept arguments one at a time
 until it has enough arguments to execute the original function.
 */
-function curry(func) {}
+function curry(func) {
+  function curried(...args) {
+    if (args.length < func.length)
+      return (...moreArgs) => curried(...args, ...moreArgs);
+
+    return func(...args);
+  }
+  return curried;
+}
 
 // Tests for Challenge 24
 function testCurry() {
@@ -874,7 +882,23 @@ Create a function 'applyMiddleware' that accepts an array of middleware function
 and returns a function that executes them in sequence, where each middleware
 can modify or halt the execution chain.
 */
-function applyMiddleware(middlewares) {}
+function applyMiddleware(middlewares) {
+  // const process = (input) => {
+  //   let acc = (x) => x;
+  //   for (let i = 1; i <= middlewares.length; i++) {
+  //     acc = middlewares.at(-i)(acc);
+  //   }
+
+  //   return acc(input);
+  // };
+  // return process;
+
+  return (input) =>
+    middlewares.reduceRight(
+      (next, middleware) => middleware(next),
+      (x) => x,
+    )(input);
+}
 
 // Tests for Challenge 25
 function testApplyMiddleware() {
@@ -888,7 +912,7 @@ function testApplyMiddleware() {
 
   const reverseChain = applyMiddleware([addSpace, addQuestion, addExclamation]);
 
-  checkTest("order matters in middleware", reverseChain("hello"), "hello !?!");
+  checkTest("order matters in middleware", reverseChain("hello"), "hello ?!");
 }
 
 // Complete runAllTests function with all challenges
@@ -963,11 +987,11 @@ function runAllTests() {
   console.log("\nRunning Challenge 23 Tests:");
   testThrottle();
 
-  // console.log('\nRunning Challenge 24 Tests:');
-  // testCurry();
+  console.log("\nRunning Challenge 24 Tests:");
+  testCurry();
 
-  // console.log('\nRunning Challenge 25 Tests:');
-  // testApplyMiddleware();
+  console.log("\nRunning Challenge 25 Tests:");
+  testApplyMiddleware();
 }
 
 // Helper functions for timing-based tests
