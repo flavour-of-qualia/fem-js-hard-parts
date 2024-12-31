@@ -47,7 +47,12 @@ Challenge 2: Delayed Greeting
 Create a function that logs a welcome message after 3 seconds.
 Tests timing of setTimeout and basic async behavior.
 */
-function delayedGreet() {}
+function delayedGreet(fn) {
+  setTimeout(() => {
+    fn();
+    console.log("howdy");
+  }, 3000);
+}
 
 async function testDelayedGreet() {
   console.log("Testing delayed greeting...");
@@ -71,7 +76,10 @@ Create a function that demonstrates handling multiple timeouts:
 - Logs 'hello' immediately
 - Logs 'good bye' after 2 seconds
 */
-function helloGoodbye() {}
+function helloGoodbye(log) {
+  log("hello");
+  setTimeout(() => log("good bye"), 2000);
+}
 
 async function testHelloGoodbye() {
   console.log("Testing hello goodbye...");
@@ -91,7 +99,15 @@ Challenge 4: Recurring Timer
 Create a function that logs a message every second indefinitely.
 Tests setInterval functionality.
 */
-function brokenRecord() {}
+function brokenRecord(fn) {
+  let timer_id = setInterval(() => {
+    fn("hi again");
+  }, 1000);
+  return () => {
+    console.log("stopped");
+    clearInterval(timer_id);
+  };
+}
 
 async function testBrokenRecord() {
   console.log("Testing broken record...");
@@ -100,6 +116,7 @@ async function testBrokenRecord() {
 
   await wait(3100); // Wait for 3 iterations
   stopRecord(); // Stop the interval
+  console.log(outputs);
 
   checkTest(
     "Should log every second",
@@ -113,7 +130,12 @@ Challenge 5: Limited Recurring Timer
 Create a function that logs a message every second for 5 seconds only.
 Tests combination of setInterval and setTimeout for cleanup.
 */
-function limitedRepeat() {}
+function limitedRepeat(fn) {
+  const intervalId = setInterval(() => fn("hi for now"), 1000);
+  setTimeout(() => {
+    clearInterval(intervalId);
+  }, 5000);
+}
 
 async function testLimitedRepeat() {
   console.log("Testing limited repeat...");
@@ -134,7 +156,10 @@ Challenge 6: Configurable Interval and Duration
 Create a function that executes a callback every X seconds for Y seconds total.
 Tests complex timer management with configurable intervals.
 */
-function everyXsecsForYsecs(func, interval, duration) {}
+function everyXsecsForYsecs(func, interval, duration) {
+  const intervalId = setInterval(() => func(), interval);
+  setTimeout(() => clearInterval(intervalId), duration);
+}
 
 async function testEveryXsecsForYsecs() {
   console.log("Testing configurable intervals...");
@@ -154,7 +179,19 @@ Challenge 7: Delayed Counter
 Create a function that counts up to a target number with specified delays.
 Tests progressive timer management and closure concepts.
 */
-function delayCounter(target, wait) {}
+function delayCounter(target, wait) {
+  let count = 0;
+  return (log) => {
+    let interval_id;
+    const addCount = () => {
+      log(++count);
+      if (!interval_id) return;
+      clearInterval(interval_id);
+    };
+
+    setInterval(addCount, 1000);
+  };
+}
 
 async function testDelayCounter() {
   console.log("Testing delay counter...");
@@ -171,7 +208,13 @@ Challenge 8: Promise Delayed Resolution
 Create a function that returns a promise resolving after 2 seconds.
 Tests basic Promise creation and timing.
 */
-function promised(val) {}
+function promised(val) {
+  let promise = new Promise((resolve) => {
+    setTimeout(() => resolve(val), 2000);
+  });
+
+  return promise;
+}
 
 async function testPromised() {
   console.log("Testing promised...");
@@ -251,7 +294,7 @@ async function runAllTests() {
 }
 
 // Uncomment to run all tests
-// runAllTests().then(() => console.log('All tests complete!'));
+// runAllTests().then(() => console.log("All tests complete!"));
 
 // Or run individual tests:
 // testEventLoop();
@@ -262,5 +305,5 @@ async function runAllTests() {
 // testEveryXsecsForYsecs();
 // testDelayCounter();
 // testPromised();
-// testSecondClock();
+testSecondClock();
 // testDebounce();
