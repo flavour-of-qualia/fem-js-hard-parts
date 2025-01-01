@@ -237,11 +237,23 @@ Create a class that implements a clock ticking every second.
 Tests OOP concepts with timer management.
 */
 class SecondClock {
-  constructor(cb) {}
+  constructor(cb) {
+    this.cb = cb;
+    this.intervalId = null; // should this init to null or undefined?
+    this.counter = 0;
+  }
 
-  start() {}
+  start() {
+    if (this.intervalId) throw new Error("Timer already running");
+    this.intervalId = setInterval(() => {
+      this.cb(++this.counter);
+    }, 1000);
+  }
 
-  reset() {}
+  reset() {
+    clearInterval(this.intervalId);
+    this.counter = 0;
+  }
 }
 
 async function testSecondClock() {
@@ -261,7 +273,20 @@ Challenge 10: Debounce Function
 Create a function that prevents a callback from being called too frequently.
 Tests advanced timer management and function wrapping.
 */
-function debounce(callback, interval) {}
+function debounce(callback, interval) {
+  let counterId = null;
+
+  return function (...args) {
+    if (counterId) {
+      clearTimeout(counterId);
+      counterId = null;
+    }
+
+    counterId = setTimeout(() => {
+      callback(...args);
+    }, interval);
+  };
+}
 
 async function testDebounce() {
   console.log("Testing debounce...");
@@ -305,5 +330,5 @@ async function runAllTests() {
 // testEveryXsecsForYsecs();
 // testDelayCounter();
 // testPromised();
-testSecondClock();
-// testDebounce();
+// testSecondClock();
+testDebounce();
