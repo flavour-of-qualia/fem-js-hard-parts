@@ -1,7 +1,4 @@
-/****************************************************************
-                      TEST HELPER FUNCTION
-****************************************************************/
-
+// Test Helper Function
 function checkTest(testName, actual, expected) {
   if (JSON.stringify(actual) === JSON.stringify(expected)) {
     console.log(`✅ ${testName} PASSED`);
@@ -28,10 +25,7 @@ const vicky = makePerson('Vicky', 24);
 */
 
 function makePerson(name, age) {
-  return {
-    name: name,
-    age: age,
-  };
+  // Add code here
 }
 
 function testMakePerson() {
@@ -62,9 +56,7 @@ personStore.greet(); // logs 'hello'
 */
 
 const personStore = {
-  greet: function () {
-    console.log("hello");
-  },
+  // Add code here
 };
 
 function testPersonStore() {
@@ -92,10 +84,7 @@ const sandra = personFromPersonStore('Sandra', 26);
 */
 
 function personFromPersonStore(name, age) {
-  const person = Object.create(personStore);
-  person.name = name;
-  person.age = age;
-  return person;
+  // Add code here
 }
 
 function testPersonFromPersonStore() {
@@ -130,9 +119,7 @@ const sandra = personFromPersonStore('Sandra', 26);
 sandra.introduce(); // logs 'Hi, my name is Sandra'
 */
 
-personStore.introduce = function () {
-  console.log(`Hi, my name is ${this.name}`);
-};
+// Add introduce method to personStore here
 
 function testIntroduce() {
   const sandra = personFromPersonStore("Sandra", 26);
@@ -157,18 +144,18 @@ function testIntroduce() {
 /* CHALLENGE 5
 Create a function PersonConstructor that adds a method greet to its
 prototype. greet should log 'hello'. This will be shared by all
-objects created with the 'new' keyword from PersonConstructor.
+objects created with 'new' from PersonConstructor.
 
 Example:
 const simon = new PersonConstructor();
 simon.greet(); // logs 'hello'
 */
 
-function PersonConstructor() {}
+function PersonConstructor() {
+  // Add code here
+}
 
-PersonConstructor.prototype.greet = function () {
-  console.log("hello");
-};
+// Add prototype methods here
 
 function testPersonConstructor() {
   const simon = new PersonConstructor();
@@ -200,10 +187,7 @@ const mike = personFromConstructor('Mike', 30);
 */
 
 function personFromConstructor(name, age) {
-  const person = new PersonConstructor();
-  person.name = name;
-  person.age = age;
-  return person;
+  // Add code here
 }
 
 function testPersonFromConstructor() {
@@ -224,17 +208,14 @@ function testPersonFromConstructor() {
 
 /* CHALLENGE 7
 Add a method introduce to the PersonConstructor prototype that logs
-"Hi, my name is [name]". This will be shared by all objects created
-from personFromConstructor.
+"Hi, my name is [name]".
 
 Example:
 const mike = personFromConstructor('Mike', 30);
 mike.introduce(); // logs 'Hi, my name is Mike'
 */
 
-PersonConstructor.prototype.introduce = function () {
-  console.log(`Hi, my name is ${this.name}`);
-};
+// Add introduce method to PersonConstructor prototype here
 
 function testConstructorIntroduce() {
   const mike = personFromConstructor("Mike", 30);
@@ -267,13 +248,7 @@ george.greet(); // logs 'hello'
 */
 
 class PersonClass {
-  constructor(name) {
-    this.name = name;
-  }
-
-  greet() {
-    console.log("hello");
-  }
+  // Add code here
 }
 
 function testPersonClass() {
@@ -301,16 +276,7 @@ const thai = new DeveloperClass('Thai', 32);
 thai.introduce(); // logs 'Hello World, my name is Thai'
 */
 
-class DeveloperClass extends PersonClass {
-  constructor(name, age) {
-    super(name);
-    this.age = age;
-  }
-
-  introduce() {
-    console.log(`Hello World, my name is ${this.name}`);
-  }
-}
+// Add DeveloperClass here
 
 function testDeveloperClass() {
   const thai = new DeveloperClass("Thai", 32);
@@ -330,120 +296,7 @@ function testDeveloperClass() {
   );
 }
 
-/****************************************************************
-                      EXTENSION: SUBCLASSING
-****************************************************************/
-
-const userFunctionStore = {
-  sayType: function () {
-    console.log("I am a " + this.type);
-  },
-};
-
-function userFactory(name, score) {
-  let user = Object.create(userFunctionStore);
-  user.type = "User";
-  user.name = name;
-  user.score = score;
-  return user;
-}
-
-/* CHALLENGE 10
-Create an object adminFunctionStore that inherits from userFunctionStore
-using Object.create. This gives admins access to userFunctionStore methods.
-*/
-
-const adminFunctionStore = Object.create(userFunctionStore);
-
-/* CHALLENGE 11-13
-Create an adminFactory function that:
-1. Takes name and score parameters
-2. Creates an admin object inheriting from adminFunctionStore
-3. Sets type to "Admin" instead of "User"
-4. Returns the admin object
-*/
-
-function adminFactory(name, score) {
-  const admin = Object.create(adminFunctionStore);
-  admin.name = name;
-  admin.score = score;
-  admin.type = "Admin";
-  return admin;
-}
-
-/* CHALLENGE 14
-Add a sharePublicMessage method to adminFunctionStore that logs
-'Welcome users!'. This should be available to admin objects but
-not user objects.
-*/
-
-adminFunctionStore.sharePublicMessage = function () {
-  console.log("Welcome users!");
-};
-
-function testAdmin() {
-  const adminFromFactory = adminFactory("Eva", 5);
-  let output = [];
-  const log = console.log;
-  console.log = (msg) => output.push(msg);
-
-  adminFromFactory.sayType();
-  adminFromFactory.sharePublicMessage();
-  console.log = log;
-
-  checkTest("admin has correct type", output[0], "I am a Admin");
-
-  checkTest("admin can share public message", output[1], "Welcome users!");
-}
-
-/****************************************************************
-                      EXTENSION: MIXINS
-****************************************************************/
-
-/*
-Create a way to mix Robot properties into a Dog instance.
-The mixed robot-dog should use the robot's speak method
-instead of the dog's, but should maintain its own properties.
-*/
-
-class Dog {
-  constructor() {
-    this.legs = 4;
-  }
-  speak() {
-    console.log("Woof!");
-  }
-}
-
-const robotMixin = {
-  skin: "metal",
-  speak: function () {
-    console.log(`I have ${this.legs} legs and am made of ${this.skin}`);
-  },
-};
-
-function testRobotDog() {
-  let robotFido = new Dog();
-  Object.assign(robotFido, robotMixin);
-
-  let output = "";
-  const log = console.log;
-  console.log = (msg) => (output = msg);
-
-  robotFido.speak();
-  console.log = log;
-
-  checkTest(
-    "robot dog has correct speech",
-    output,
-    "I have 4 legs and am made of metal",
-  );
-}
-
-/****************************************************************
-                           RUN TESTS
-****************************************************************/
-
+// Run all tests
 function runAllTests() {
   console.log("Running Challenge 1 Tests:");
   testMakePerson();
@@ -471,15 +324,9 @@ function runAllTests() {
 
   console.log("\nRunning Challenge 9 Tests:");
   testDeveloperClass();
-
-  console.log("\nRunning Admin Tests:");
-  testAdmin();
-
-  console.log("\nRunning Mixin Tests:");
-  testRobotDog();
 }
 
-// Uncomment the following line to run all tests
+// Uncomment to run all tests
 // runAllTests();
 
 // Or run individual tests:
