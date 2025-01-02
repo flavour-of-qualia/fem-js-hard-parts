@@ -25,7 +25,10 @@ const vicky = makePerson('Vicky', 24);
 */
 
 function makePerson(name, age) {
-  // Add code here
+  return {
+    name: name,
+    age: age,
+  };
 }
 
 function testMakePerson() {
@@ -56,7 +59,9 @@ personStore.greet(); // logs 'hello'
 */
 
 const personStore = {
-  // Add code here
+  greet: function () {
+    console.log("hello");
+  },
 };
 
 function testPersonStore() {
@@ -84,7 +89,10 @@ const sandra = personFromPersonStore('Sandra', 26);
 */
 
 function personFromPersonStore(name, age) {
-  // Add code here
+  let obj = Object.create(personStore);
+  obj.name = name;
+  obj.age = age;
+  return obj;
 }
 
 function testPersonFromPersonStore() {
@@ -120,6 +128,9 @@ sandra.introduce(); // logs 'Hi, my name is Sandra'
 */
 
 // Add introduce method to personStore here
+personStore.introduce = function () {
+  console.log("Hi, my name is " + this.name);
+};
 
 function testIntroduce() {
   const sandra = personFromPersonStore("Sandra", 26);
@@ -152,7 +163,9 @@ simon.greet(); // logs 'hello'
 */
 
 function PersonConstructor() {
-  // Add code here
+  this.greet = function () {
+    console.log("hello");
+  };
 }
 
 // Add prototype methods here
@@ -187,7 +200,10 @@ const mike = personFromConstructor('Mike', 30);
 */
 
 function personFromConstructor(name, age) {
-  // Add code here
+  const person = new PersonConstructor();
+  person.name = name;
+  person.age = age;
+  return person;
 }
 
 function testPersonFromConstructor() {
@@ -215,7 +231,9 @@ const mike = personFromConstructor('Mike', 30);
 mike.introduce(); // logs 'Hi, my name is Mike'
 */
 
-// Add introduce method to PersonConstructor prototype here
+PersonConstructor.prototype.introduce = function () {
+  console.log(`Hi, my name is ${this.name}`);
+};
 
 function testConstructorIntroduce() {
   const mike = personFromConstructor("Mike", 30);
@@ -248,7 +266,13 @@ george.greet(); // logs 'hello'
 */
 
 class PersonClass {
-  // Add code here
+  constructor(name) {
+    this.name = name;
+  }
+
+  greet() {
+    console.log("hello");
+  }
 }
 
 function testPersonClass() {
@@ -276,7 +300,15 @@ const thai = new DeveloperClass('Thai', 32);
 thai.introduce(); // logs 'Hello World, my name is Thai'
 */
 
-// Add DeveloperClass here
+class DeveloperClass extends PersonClass {
+  constructor(name, age) {
+    super(name);
+    this.age = age;
+  }
+  introduce() {
+    console.log(`Hello World, my name is ${this.name}`);
+  }
+}
 
 function testDeveloperClass() {
   const thai = new DeveloperClass("Thai", 32);
@@ -327,7 +359,7 @@ function runAllTests() {
 }
 
 // Uncomment to run all tests
-// runAllTests();
+runAllTests();
 
 // Or run individual tests:
 // testMakePerson();
